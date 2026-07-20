@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="h4 mb-0">
-            Mes demandes de congés
+            {{ auth()->user()->role === 'manager' ? 'Demandes à traiter' : 'Mes demandes de congés'}}
         </h2>
     </x-slot>
 
@@ -16,14 +16,19 @@
         <div class="card shadow-sm">
             <div class="card-body">
 
-                <a href="{{ route('demande-conges.create') }}" class="btn btn-primary mb-3">
-                    <i class="fas fa-plus"></i> Nouvelle demande
-                </a>
+                @if (auth()->user()->role !== 'manager')
+                    <a href="{{ route('demande-conges.create') }}" class="btn btn-brand mb-3">
+                        <i class="bi bi-plus-circle me-2"></i>Nouvelle demande
+                    </a>
+                @endif
 
                 <div class="table-responsive">
                     <table class="table table-striped align-middle">
                         <thead class="table-dark">
                             <tr>
+                                @if (auth()->user()->role==='manager')
+                                    <th>Employé</th>
+                                @endif
                                 <th>Type</th>
                                 <th>Début</th>
                                 <th>Fin</th>
@@ -34,6 +39,9 @@
                         <tbody>
                             @forelse ($demandeConges as $demande)
                                 <tr>
+                                    @if (auth()->user()->role==='manager')
+                                        <td>{{ $demande->user->name}}</td>
+                                    @endif    
                                     <td>{{ $demande->typeConge->libelle }}</td>
                                     <td>{{ $demande->date_debut->format('d/m/Y') }}</td>
                                     <td>{{ $demande->date_fin->format('d/m/Y') }}</td>

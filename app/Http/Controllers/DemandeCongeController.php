@@ -13,7 +13,12 @@ class DemandeCongeController extends Controller
      */
     public function index()
     {
+        $isManager = auth()->user()->role === 'manager';
+
         $demandeConges = DemandeConge::with(['user', 'typeConge'])
+            ->when(!$isManager, function ($query) {
+                return $query->where('user_id', auth()->id());
+            })
             ->latest()
             ->get();
 
@@ -25,6 +30,10 @@ class DemandeCongeController extends Controller
      */
     public function create()
     {
+         if (auth()->user()->role === 'manager') {
+            abort(403, "Un manager ne peut pas déposer de demande de congé.");
+        }
+
         $typeConges = TypeConge::all();
 
         return view('demande-conges.create', compact('typeConges'));
@@ -37,6 +46,10 @@ class DemandeCongeController extends Controller
      */
     public function store(Request $request)
     {
+        if (auth()->user()->role === 'manager') {
+            abort(403, "Un manager ne peut pas déposer de demande de congé.");
+        }
+
         $validated = $request->validate([
             'type_conge_id' => 'required|exists:type_conges,id',
             'date_debut' => 'required|date|after_or_equal:today',

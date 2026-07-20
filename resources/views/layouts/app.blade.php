@@ -130,11 +130,14 @@
                     <i class="bi bi-speedometer2"></i>Dashboard
                 </a>
                 <a href="{{ route('demande-conges.index') }}" class="nav-link {{ request()->routeIs('demande-conges.index') ? 'active' : '' }}">
-                    <i class="bi bi-file-earmark-text"></i>Mes demandes
+                    <i class="bi bi-file-earmark-text"></i>
+                    {{ auth()->user()->role === 'manager' ? 'Demande à traiter' : 'Mes demandes' }}
                 </a>
-                <a href="{{ route('demande-conges.create') }}" class="nav-link {{ request()->routeIs('demande-conges.create') ? 'active' : '' }}">
-                    <i class="bi bi-plus-circle"></i>Nouvelle demande
-                </a>
+                @if (auth()->user()->role !== 'manager')
+                    <a href="{{ route('demande-conges.create') }}" class="nav-link {{ request()->routeIs('demande-conges.create') ? 'active' : '' }}">
+                        <i class="bi bi-plus-circle"></i>Nouvelle demande
+                    </a>
+                @endif
                 <a href="{{ route('profile.edit') }}" class="nav-link {{ request()->routeIs('profile.edit') ? 'active' : '' }}">
                     <i class="bi bi-person"></i>Profil
                 </a>
