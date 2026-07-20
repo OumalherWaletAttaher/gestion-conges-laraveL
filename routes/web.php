@@ -23,3 +23,8 @@ require __DIR__.'/auth.php';
 Route::middleware('auth')->group(function () {
     Route::resource('demande-conges', DemandeCongeController::class);
 });
+
+Route::middleware(['auth', 'manager'])->group(function () {
+    Route::patch('/demande-conges/{demande_conge}/valider', [DemandeCongeController::class, 'valider'])->name('demande-conges.valider');
+    Route::patch('/demande-conges/{demande_conge}/refuser', [DemandeCongeController::class, 'refuser'])->name('demande-conges.refuser');
+});

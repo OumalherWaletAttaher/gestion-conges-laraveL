@@ -1,57 +1,108 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="h4 mb-0">
             Mes demandes de congés
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+    <div class="container py-4">
 
-                @if (session('success'))
-                    <div class="mb-4 p-4 bg-green-100 text-green-800 rounded">
-                        {{ session('success') }}
-                    </div>
-                @endif
+        @if (session('success'))
+            <div class="alert alert-success" role="alert">
+                {{ session('success') }}
+            </div>
+        @endif
 
-                <a href="{{ route('demande-conges.create') }}" class="inline-block mb-4 px-4 py-2 bg-blue-600 text-white rounded">
-                    + Nouvelle demande
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <a href="{{ route('demande-conges.create') }}" class="btn btn-primary mb-3">
+                    <i class="fas fa-plus"></i> Nouvelle demande
                 </a>
 
-                <table class="w-full border-collapse">
-                    <thead>
-                        <tr class="border-b">
-                            <th class="text-left p-2">Type</th>
-                            <th class="text-left p-2">Début</th>
-                            <th class="text-left p-2">Fin</th>
-                            <th class="text-left p-2">Statut</th>
-                            <th class="text-left p-2">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($demandeConges as $demande)
-                            <tr class="border-b">
-                                <td class="p-2">{{ $demande->typeConge->libelle }}</td>
-                                <td class="p-2">{{ $demande->date_debut->format('d/m/Y') }}</td>
-                                <td class="p-2">{{ $demande->date_fin->format('d/m/Y') }}</td>
-                                <td class="p-2">{{ $demande->statut }}</td>
-                                <td class="p-2">
-                                    <a href="{{ route('demande-conges.edit', $demande) }}" class="text-blue-600">Modifier</a>
-                                    <form action="{{ route('demande-conges.destroy', $demande) }}" method="POST" class="inline" onsubmit="return confirm('Confirmer la suppression ?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 ml-2">Supprimer</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @empty
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead class="table-dark">
                             <tr>
-                                <td colspan="5" class="p-2 text-gray-500">Aucune demande pour le moment.</td>
+                                <th>Type</th>
+                                <th>Début</th>
+                                <th>Fin</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
                             </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @forelse ($demandeConges as $demande)
+                                <tr>
+                                    <td>{{ $demande->typeConge->libelle }}</td>
+                                    <td>{{ $demande->date_debut->format('d/m/Y') }}</td>
+                                    <td>{{ $demande->date_fin->format('d/m/Y') }}</td>
+                                    <td>
+                                        @if ($demande->statut === 'valide')
+                                            <span class="badge bg-success">Validé</span>
+                                        @elseif ($demande->statut === 'refuse')
+                                            <span class="badge bg-danger">Refusé</span>
+                                        @else
+                                            <span class="badge bg-warning text-dark">En attente</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if (auth()->id() === $demande->user_id && $demande->statut === 'en_attente')
+                                            <a href="{{ route('demande-conges.edit', $demande) }}" class="btn btn-sm btn-outline-primary">
+                                                Modifier
+                                            </a>
+
+                                            <button type="button" class="btn btn-sm btn-outline-danger" data-mdb-toggle="modal" data-mdb-target="#deleteModal{{ $demande->id }}">
+                                                Supprimer
+                                            </button>
+
+                                            <!-- Modale de confirmation -->
+                                            <div class="modal fade" id="deleteModal{{ $demande->id }}" tabindex="-1">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Confirmer la suppression</h5>
+                                                            <button type="button" class="btn-close" data-mdb-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Es-tu sûr de vouloir supprimer cette demande de congé ? Cette action est irréversible.
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Annuler</button>
+                                                            <form action="{{ route('demande-conges.destroy', $demande) }}" method="POST">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-danger">Supprimer</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        @if (auth()->user()->role === 'manager' && $demande->statut === 'en_attente')
+                                            <form action="{{ route('demande-conges.valider', $demande) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="btn btn-sm btn-success">Valider</button>
+                                            </form>
+
+                                            <form action="{{ route('demande-conges.refuser', $demande) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="btn btn-sm btn-warning">Refuser</button>
+                                            </form>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">Aucune demande pour le moment.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
 
             </div>
         </div>

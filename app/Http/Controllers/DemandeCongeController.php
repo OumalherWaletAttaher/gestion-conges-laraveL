@@ -66,7 +66,11 @@ class DemandeCongeController extends Controller
      * Show the form for editing the specified resource.
      */
     public function edit(DemandeConge $demandeConge)
-    {
+    {   
+        if (auth()->id() !== $demandeConge->user_id) {
+            abort(403,"Vous ne pouvez modifier que vos propres demandes.");
+        }
+
         $typeConges = TypeConge::all();
 
         return view('demande-conges.edit', compact('demandeConge', 'typeConges'));
@@ -76,7 +80,11 @@ class DemandeCongeController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, DemandeConge $demandeConge)
-    {
+    {   
+        if (auth()->id() !== $demandeConge->user_id) {
+            abort(403,"Vous ne pouvez modifier que vos propres demandes.");
+        }
+
         $validated = $request->validate([
             'type_conge_id' => 'required|exists:type_conges,id',
             'date_debut' => 'required|date',
@@ -95,11 +103,33 @@ class DemandeCongeController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy(DemandeConge $demandeConge)
-    {
+    {   
+        if (auth()->id() !== $demandeConge->user_id) {
+            abort(403,"Vous ne pouvez modifier que vos propres demandes.");
+        }
+
         $demandeConge->delete();
 
         return redirect()
             ->route('demande-conges.index')
             ->with('success', 'La demande de congé a bien été supprimée.');
+    }
+
+    public function valider(DemandeConge $demandeConge)
+    {
+        $demandeConge->update(['statut' => 'valide']);
+
+        return redirect()
+            ->route('demande-conges.index')
+            ->with('success', 'La demande a été validée.');
+    }
+
+    public function refuser(DemandeConge $demandeConge)
+    {
+        $demandeConge->update(['statut' => 'refuse']);
+
+        return redirect()
+            ->route('demande-conges.index')
+            ->with('success', 'La demande a été refusée.');
     }
 }

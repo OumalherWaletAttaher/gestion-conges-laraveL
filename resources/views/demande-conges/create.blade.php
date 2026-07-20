@@ -1,20 +1,18 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Nouvelle demande de congé
-        </h2>
+        <h4 class="fw-bold mb-0">Nouvelle demande de congé</h4>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="stat-card">
 
                 <form method="POST" action="{{ route('demande-conges.store') }}">
                     @csrf
 
-                    <div class="mb-4">
-                        <label class="block mb-1">Type de congé</label>
-                        <select name="type_conge_id" class="w-full border rounded p-2">
+                    <div class="mb-3">
+                        <label for="type_conge_id" class="form-label">Type de congé</label>
+                        <select id="type_conge_id" name="type_conge_id" class="form-select @error('type_conge_id') is-invalid @enderror" required>
                             <option value="">-- Choisir --</option>
                             @foreach ($typeConges as $type)
                                 <option value="{{ $type->id }}" {{ old('type_conge_id') == $type->id ? 'selected' : '' }}>
@@ -23,35 +21,44 @@
                             @endforeach
                         </select>
                         @error('type_conge_id')
-                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                            <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
-                    <div class="mb-4">
-                        <label class="block mb-1">Date de début</label>
-                        <input type="date" name="date_debut" value="{{ old('date_debut') }}" class="w-full border rounded p-2">
-                        @error('date_debut')
-                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                        @enderror
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="date_debut" class="form-label">Date de début</label>
+                            <input type="date" id="date_debut" name="date_debut" class="form-control @error('date_debut') is-invalid @enderror" value="{{ old('date_debut') }}" required>
+                            @error('date_debut')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="date_fin" class="form-label">Date de fin</label>
+                            <input type="date" id="date_fin" name="date_fin" class="form-control @error('date_fin') is-invalid @enderror" value="{{ old('date_fin') }}" required>
+                            @error('date_fin')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
 
                     <div class="mb-4">
-                        <label class="block mb-1">Date de fin</label>
-                        <input type="date" name="date_fin" value="{{ old('date_fin') }}" class="w-full border rounded p-2">
-                        @error('date_fin')
-                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="block mb-1">Motif</label>
-                        <textarea name="motif" rows="4" class="w-full border rounded p-2">{{ old('motif') }}</textarea>
+                        <label for="motif" class="form-label">Motif</label>
+                        <textarea id="motif" name="motif" rows="4" class="form-control @error('motif') is-invalid @enderror" placeholder="Expliquez brièvement la raison de votre demande...">{{ old('motif') }}</textarea>
                         @error('motif')
-                            <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                            <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
-                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Envoyer la demande</button>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-brand">
+                            <i class="bi bi-send me-2"></i>Envoyer la demande
+                        </button>
+                        <a href="{{ route('demande-conges.index') }}" class="btn btn-outline-secondary">
+                            Annuler
+                        </a>
+                    </div>
                 </form>
 
             </div>
