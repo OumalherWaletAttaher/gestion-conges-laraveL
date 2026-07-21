@@ -7,11 +7,11 @@
         $isManager = auth()->user()->role === 'manager';
         $mesDemandes = \App\Models\DemandeConge::where('user_id', auth()->id())->count();
         $enAttente = ($isManager ? \App\Models\DemandeConge::query() : \App\Models\DemandeConge::where('user_id', auth()->id()))
-            ->where('statut', 'en_attente')->count();
+            ->where('statut', \App\Enums\StatutConge::EnAttente->value)->count();
         $validees = ($isManager ? \App\Models\DemandeConge::query() : \App\Models\DemandeConge::where('user_id', auth()->id()))
-            ->where('statut', 'valide')->count();
+            ->where('statut', \App\Enums\StatutConge::Valide->value)->count();
         $refusees = ($isManager ? \App\Models\DemandeConge::query() : \App\Models\DemandeConge::where('user_id', auth()->id()))
-            ->where('statut', 'refuse')->count();
+            ->where('statut', \App\Enums\StatutConge::Refuse->value)->count();
         $recentes = ($isManager ? \App\Models\DemandeConge::with(['user', 'typeConge'])->latest() : \App\Models\DemandeConge::with('typeConge')->where('user_id', auth()->id())->latest())
             ->take(6)->get();
     @endphp
@@ -95,9 +95,9 @@
                             <td>{{ $demande->date_debut->format('d/m/Y') }}</td>
                             <td>{{ $demande->date_fin->format('d/m/Y') }}</td>
                             <td>
-                                @if ($demande->statut === 'valide')
+                                @if ($demande->statut->value === 'valide')
                                     <span class="badge badge-valide">Validé</span>
-                                @elseif ($demande->statut === 'refuse')
+                                @elseif ($demande->statut->value === 'refuse')
                                     <span class="badge badge-refuse">Refusé</span>
                                 @else
                                     <span class="badge badge-attente">En attente</span>
