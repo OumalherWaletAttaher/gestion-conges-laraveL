@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Gestion des Congés') }}</title>
 
@@ -23,7 +24,7 @@
                 background-color: #f5f5f7;
             }
 
-            .welcome-wrapper {
+            .auth-wrapper {
                 width: 100%;
                 max-width: 900px;
                 margin: auto;
@@ -39,7 +40,7 @@
                 to { opacity: 1; transform: translateY(0); }
             }
 
-            .welcome-side {
+            .auth-side {
                 background: linear-gradient(135deg, #7b2f5f 0%, #4a1942 100%);
                 position: relative;
                 overflow: hidden;
@@ -51,7 +52,7 @@
                 padding: 3rem 2rem;
             }
 
-            .welcome-side::before {
+            .auth-side::before {
                 content: "";
                 position: absolute;
                 top: -20%;
@@ -62,7 +63,7 @@
                 transform: rotate(45deg);
             }
 
-            .welcome-side::after {
+            .auth-side::after {
                 content: "";
                 position: absolute;
                 bottom: -25%;
@@ -73,7 +74,7 @@
                 transform: rotate(45deg);
             }
 
-            .welcome-side-content {
+            .auth-side-content {
                 position: relative;
                 z-index: 1;
                 text-align: center;
@@ -92,6 +93,16 @@
                 font-size: 2.5rem;
             }
 
+            .form-control:focus {
+                border-color: #7b2f5f;
+                box-shadow: 0 0 0 0.25rem rgba(123, 47, 95, 0.15);
+            }
+
+            .form-select:focus {
+                border-color: #7b2f5f;
+                box-shadow: 0 0 0 0.25rem rgba(123, 47, 95, 0.15);
+            }
+
             .btn-brand {
                 background-color: #7b2f5f;
                 border: none;
@@ -105,65 +116,20 @@
                 transform: translateY(-1px);
             }
 
-            .btn-outline-brand {
-                border: 2px solid #7b2f5f;
+            .link-brand {
                 color: #7b2f5f;
-                transition: all 0.15s ease;
+                text-decoration: none;
+                font-weight: 600;
             }
 
-            .btn-outline-brand:hover {
-                background-color: #7b2f5f;
-                color: white;
-                transform: translateY(-1px);
+            .link-brand:hover {
+                color: #5f2449;
+                text-decoration: underline;
             }
         </style>
     </head>
     <body>
-
-        <div class="welcome-wrapper">
-            <div class="row g-0">
-                <div class="col-md-5">
-                    <div class="welcome-side h-100">
-                        <div class="welcome-side-content">
-                            <div class="icon-circle">
-                                <i class="bi bi-calendar-check"></i>
-                            </div>
-                            <h3 class="fw-bold mb-2">Gestion des Congés</h3>
-                            <p class="opacity-75 mb-0">Simulez et gérez vos demandes de congés employés</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-7 d-flex align-items-center">
-                    <div class="p-5 w-100 text-center">
-                        <h2 class="fw-bold mb-3">Bienvenue</h2>
-                        <p class="text-muted mb-4">
-                            Une plateforme simple pour déposer, suivre et valider les demandes de congés au sein de votre équipe.
-                        </p>
-
-                        @if (Route::has('login'))
-                            <div class="d-grid gap-2">
-                                @auth
-                                    <a href="{{ url('/dashboard') }}" class="btn btn-brand btn-lg">
-                                        Accéder à mon espace
-                                    </a>
-                                @else
-                                    <a href="{{ route('login') }}" class="btn btn-brand btn-lg">
-                                        Se connecter
-                                    </a>
-
-                                    @if (Route::has('register'))
-                                        <a href="{{ route('register') }}" class="btn btn-outline-brand btn-lg">
-                                            Créer un compte
-                                        </a>
-                                    @endif
-                                @endauth
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
+        {{ $slot }}
 
         <!-- MDBootstrap JS -->
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.3.0/mdb.umd.min.js"></script>

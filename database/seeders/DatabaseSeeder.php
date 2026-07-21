@@ -3,8 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\TypeConge;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,11 +17,37 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Types de congé
+        $this->call([
+            TypeCongeSeeder::class,
         ]);
+
+        // Manager de démo
+        User::firstOrCreate(
+            ['email' => 'manager@demo.com'],
+            [
+                'name'     => 'Manager Demo',
+                'password' => Hash::make('password'),
+                'role'     => 'manager',
+            ]
+        );
+
+        // Employés de démo
+        $employes = [
+            ['name' => 'Alice Martin',  'email' => 'alice@demo.com'],
+            ['name' => 'Bob Dupont',    'email' => 'bob@demo.com'],
+            ['name' => 'Claire Morin',  'email' => 'claire@demo.com'],
+        ];
+
+        foreach ($employes as $data) {
+            User::firstOrCreate(
+                ['email' => $data['email']],
+                [
+                    'name'     => $data['name'],
+                    'password' => Hash::make('password'),
+                    'role'     => 'employe',
+                ]
+            );
+        }
     }
 }
