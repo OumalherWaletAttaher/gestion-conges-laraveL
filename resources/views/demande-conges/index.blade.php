@@ -47,58 +47,65 @@
                                     <td>{{ $demande->date_fin->format('d/m/Y') }}</td>
                                     <td>
                                         @if ($demande->statut === 'valide')
-                                            <span class="badge bg-success">Validé</span>
+                                            <span class="badge badge-valide">Validé</span>
                                         @elseif ($demande->statut === 'refuse')
-                                            <span class="badge bg-danger">Refusé</span>
+                                            <span class="badge badge-refuse">Refusé</span>
                                         @else
-                                            <span class="badge bg-warning text-dark">En attente</span>
+                                            <span class="badge badge-attente text-dark">En attente</span>
                                         @endif
                                     </td>
                                     <td>
+
+                                        <a href="{{ route('demande-conges.show', $demande) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+
                                         @if (auth()->id() === $demande->user_id && $demande->statut === 'en_attente')
                                             <a href="{{ route('demande-conges.edit', $demande) }}" class="btn btn-sm btn-outline-primary">
                                                 Modifier
                                             </a>
 
-                                            <button type="button" class="btn btn-sm btn-outline-danger" data-mdb-toggle="modal" data-mdb-target="#deleteModal{{ $demande->id }}">
+                                            
+
+                                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $demande->id }}">
                                                 Supprimer
                                             </button>
 
-                                            <!-- Modale de confirmation -->
-                                            <div class="modal fade" id="deleteModal{{ $demande->id }}" tabindex="-1">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title">Confirmer la suppression</h5>
-                                                            <button type="button" class="btn-close" data-mdb-dismiss="modal"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            Es-tu sûr de vouloir supprimer cette demande de congé ? Cette action est irréversible.
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Annuler</button>
-                                                            <form action="{{ route('demande-conges.destroy', $demande) }}" method="POST">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" class="btn btn-danger">Supprimer</button>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                        <!-- Modale de confirmation -->
+<div class="modal fade" id="deleteModal{{ $demande->id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Es-tu sûr de vouloir supprimer cette demande de congé ? Cette action est irréversible.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form action="{{ route('demande-conges.destroy', $demande) }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
                                         @endif
 
                                         @if (auth()->user()->role === 'manager' && $demande->statut === 'en_attente')
                                             <form action="{{ route('demande-conges.valider', $demande) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('PATCH')
-                                                <button type="submit" class="btn btn-sm btn-success">Valider</button>
+                                                <button type="submit" class="btn btn-sm btn-valider">Valider</button>
                                             </form>
 
                                             <form action="{{ route('demande-conges.refuser', $demande) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('PATCH')
-                                                <button type="submit" class="btn btn-sm btn-warning">Refuser</button>
+                                                <button type="submit" class="btn btn-sm btn-refuser">Refuser</button>
                                             </form>
                                         @endif
                                     </td>

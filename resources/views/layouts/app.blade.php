@@ -113,9 +113,31 @@
                 color: white;
             }
 
-            .badge-valide { background-color: #198754; }
-            .badge-refuse { background-color: #dc3545; }
-            .badge-attente { background-color: #fd7e14; }
+            .btn-valider{
+                background-color: #2f9e6f;
+                border: none;
+                color: white;
+            }
+
+            .btn-valider:hover{
+                background-color: #257d59;
+                color: white;
+            }
+
+            .btn-refuser{
+                background-color: #c94f6d;
+                border: none;
+                color: white;
+            }
+
+            .btn-refuser:hover{
+                background-color: #a83e58;
+                color: white;
+            }
+
+            .badge-valide { background-color: #2f9e6f; }
+            .badge-refuse { background-color: #c94f6d; }
+            .badge-attente { background-color: #d9a441; }
         </style>
     </head>
     <body>

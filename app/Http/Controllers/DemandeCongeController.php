@@ -70,9 +70,15 @@ class DemandeCongeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(DemandeConge $demandeConge)
+   public function show(DemandeConge $demandeConge)
     {
-        return view('demande-conges.show', compact('demandeConge'));
+    $isManager = auth()->user()->role === 'manager';
+
+    if (!$isManager && auth()->id() !== $demandeConge->user_id) {
+        abort(403, "Vous ne pouvez consulter que vos propres demandes.");
+    }
+
+    return view('demande-conges.show', compact('demandeConge'));
     }
 
     /**

@@ -31,7 +31,7 @@
 
         <div class="col-md-3">
             <div class="stat-card d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background-color: #fd7e14;">
+                <div class="stat-icon" style="background-color: #d9a441;">
                     <i class="bi bi-hourglass-split"></i>
                 </div>
                 <div>
@@ -43,7 +43,7 @@
 
         <div class="col-md-3">
             <div class="stat-card d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background-color: #198754;">
+                <div class="stat-icon" style="background-color: #2f9e6f;">
                     <i class="bi bi-check-circle"></i>
                 </div>
                 <div>
@@ -55,7 +55,7 @@
 
         <div class="col-md-3">
             <div class="stat-card d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background-color: #dc3545;">
+                <div class="stat-icon" style="background-color: #c94f6d;">
                     <i class="bi bi-x-circle"></i>
                 </div>
                 <div>
