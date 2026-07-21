@@ -46,9 +46,9 @@
                                     <td>{{ $demande->date_debut->format('d/m/Y') }}</td>
                                     <td>{{ $demande->date_fin->format('d/m/Y') }}</td>
                                     <td>
-                                        @if ($demande->statut === 'valide')
+                                        @if ($demande->statut->value === 'valide')
                                             <span class="badge badge-valide">Validé</span>
-                                        @elseif ($demande->statut === 'refuse')
+                                        @elseif ($demande->statut->value === 'refuse')
                                             <span class="badge badge-refuse">Refusé</span>
                                         @else
                                             <span class="badge badge-attente text-dark">En attente</span>
@@ -60,7 +60,7 @@
                                             <i class="bi bi-eye"></i>
                                         </a>
 
-                                        @if (auth()->id() === $demande->user_id && $demande->statut === 'en_attente')
+                                        @if (auth()->id() === $demande->user_id && $demande->statut->value === 'en_attente')
                                             <a href="{{ route('demande-conges.edit', $demande) }}" class="btn btn-sm btn-outline-primary">
                                                 Modifier
                                             </a>
@@ -95,7 +95,7 @@
 </div>
                                         @endif
 
-                                        @if (auth()->user()->role === 'manager' && $demande->statut === 'en_attente')
+                                        @if (auth()->user()->role === 'manager' && $demande->statut->value === 'en_attente')
                                             <form action="{{ route('demande-conges.valider', $demande) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 @method('PATCH')
@@ -117,6 +117,11 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+
+                {{-- Pagination --}}
+                <div class="mt-3">
+                    {{ $demandeConges->links() }}
                 </div>
 
             </div>

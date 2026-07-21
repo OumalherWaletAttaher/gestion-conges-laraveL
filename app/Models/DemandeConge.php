@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\StatutConge;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -19,15 +20,18 @@ class DemandeConge extends Model
     ];
 
     protected $casts = [
-        'date_debut'=>'date',
-        'date_fin'=>'date',
+        'date_debut' => 'date',
+        'date_fin'   => 'date',
+        'statut'     => StatutConge::class,
     ];
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function typeConge(){
+    public function typeConge()
+    {
         return $this->belongsTo(TypeConge::class);
     }
 }

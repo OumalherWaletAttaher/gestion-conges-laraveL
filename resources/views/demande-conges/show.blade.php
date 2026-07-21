@@ -12,9 +12,9 @@
                         <h5 class="fw-bold mb-1">{{ $demandeConge->user->name }}</h5>
                         <div class="text-muted small">{{ $demandeConge->user->email }}</div>
                     </div>
-                    @if ($demandeConge->statut === 'valide')
+                    @if ($demandeConge->statut->value === 'valide')
                         <span class="badge badge-valide fs-6">Validé</span>
-                    @elseif ($demandeConge->statut === 'refuse')
+                    @elseif ($demandeConge->statut->value === 'refuse')
                         <span class="badge badge-refuse fs-6">Refusé</span>
                     @else
                         <span class="badge badge-attente fs-6">En attente</span>

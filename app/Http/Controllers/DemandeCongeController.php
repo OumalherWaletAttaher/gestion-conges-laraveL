@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Enums\StatutConge;
+use App\Http\Requests\StoreDemandeCongeRequest;
+use App\Http\Requests\UpdateDemandeCongeRequest;
 use App\Models\DemandeConge;
 use App\Models\TypeConge;
 
@@ -20,7 +22,7 @@ class DemandeCongeController extends Controller
                 return $query->where('user_id', auth()->id());
             })
             ->latest()
-            ->get();
+            ->paginate(10);
 
         return view('demande-conges.index', compact('demandeConges'));
     }
@@ -30,8 +32,8 @@ class DemandeCongeController extends Controller
      */
     public function create()
     {
-         if (auth()->user()->role === 'manager') {
-            abort(403, "Un manager ne peut pas déposer de demande de congé.");
+        if (auth()->user()->role === 'manager') {
+            abort(403, 'Un manager ne peut pas déposer de demande de congé.');
         }
 
         $typeConges = TypeConge::all();
@@ -39,26 +41,14 @@ class DemandeCongeController extends Controller
         return view('demande-conges.create', compact('typeConges'));
     }
 
-   
-
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreDemandeCongeRequest $request)
     {
-        if (auth()->user()->role === 'manager') {
-            abort(403, "Un manager ne peut pas déposer de demande de congé.");
-        }
-
-        $validated = $request->validate([
-            'type_conge_id' => 'required|exists:type_conges,id',
-            'date_debut' => 'required|date|after_or_equal:today',
-            'date_fin' => 'required|date|after_or_equal:date_debut',
-            'motif' => 'required|string|max:1000',
-        ]);
-
+        $validated = $request->validated();
         $validated['user_id'] = auth()->id();
-        $validated['statut'] = 'en_attente';
+        $validated['statut']  = StatutConge::EnAttente;
 
         DemandeConge::create($validated);
 
@@ -70,24 +60,29 @@ class DemandeCongeController extends Controller
     /**
      * Display the specified resource.
      */
-   public function show(DemandeConge $demandeConge)
+    public function show(DemandeConge $demandeConge)
     {
-    $isManager = auth()->user()->role === 'manager';
+        $isManager = auth()->user()->role === 'manager';
 
-    if (!$isManager && auth()->id() !== $demandeConge->user_id) {
-        abort(403, "Vous ne pouvez consulter que vos propres demandes.");
-    }
+        if (!$isManager && auth()->id() !== $demandeConge->user_id) {
+            abort(403, 'Vous ne pouvez consulter que vos propres demandes.');
+        }
 
-    return view('demande-conges.show', compact('demandeConge'));
+        return view('demande-conges.show', compact('demandeConge'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(DemandeConge $demandeConge)
-    {   
+    {
         if (auth()->id() !== $demandeConge->user_id) {
-            abort(403,"Vous ne pouvez modifier que vos propres demandes.");
+            abort(403, 'Vous ne pouvez modifier que vos propres demandes.');
+        }
+
+        // Bug #1 corrigé : protection côté serveur sur le statut
+        if ($demandeConge->statut !== StatutConge::EnAttente) {
+            abort(403, 'Seules les demandes en attente peuvent être modifiées.');
         }
 
         $typeConges = TypeConge::all();
@@ -98,18 +93,21 @@ class DemandeCongeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, DemandeConge $demandeConge)
-    {   
+    public function update(UpdateDemandeCongeRequest $request, DemandeConge $demandeConge)
+    {
         if (auth()->id() !== $demandeConge->user_id) {
-            abort(403,"Vous ne pouvez modifier que vos propres demandes.");
+            abort(403, 'Vous ne pouvez modifier que vos propres demandes.');
         }
 
-        $validated = $request->validate([
-            'type_conge_id' => 'required|exists:type_conges,id',
-            'date_debut' => 'required|date',
-            'date_fin' => 'required|date|after_or_equal:date_debut',
-            'motif' => 'required|string|max:1000',
-        ]);
+        // Bug #1 corrigé : protection côté serveur sur le statut
+        if ($demandeConge->statut !== StatutConge::EnAttente) {
+            abort(403, 'Seules les demandes en attente peuvent être modifiées.');
+        }
+
+        $validated = $request->validated();
+
+        // Bug #2 corrigé : on remet le statut à en_attente après modification
+        $validated['statut'] = StatutConge::EnAttente;
 
         $demandeConge->update($validated);
 
@@ -122,9 +120,14 @@ class DemandeCongeController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy(DemandeConge $demandeConge)
-    {   
+    {
         if (auth()->id() !== $demandeConge->user_id) {
-            abort(403,"Vous ne pouvez modifier que vos propres demandes.");
+            abort(403, 'Vous ne pouvez supprimer que vos propres demandes.');
+        }
+
+        // Bug #1 corrigé : protection côté serveur sur le statut
+        if ($demandeConge->statut !== StatutConge::EnAttente) {
+            abort(403, 'Seules les demandes en attente peuvent être supprimées.');
         }
 
         $demandeConge->delete();
@@ -134,18 +137,24 @@ class DemandeCongeController extends Controller
             ->with('success', 'La demande de congé a bien été supprimée.');
     }
 
+    /**
+     * Valider une demande (manager uniquement).
+     */
     public function valider(DemandeConge $demandeConge)
     {
-        $demandeConge->update(['statut' => 'valide']);
+        $demandeConge->update(['statut' => StatutConge::Valide]);
 
         return redirect()
             ->route('demande-conges.index')
             ->with('success', 'La demande a été validée.');
     }
 
+    /**
+     * Refuser une demande (manager uniquement).
+     */
     public function refuser(DemandeConge $demandeConge)
     {
-        $demandeConge->update(['statut' => 'refuse']);
+        $demandeConge->update(['statut' => StatutConge::Refuse]);
 
         return redirect()
             ->route('demande-conges.index')
