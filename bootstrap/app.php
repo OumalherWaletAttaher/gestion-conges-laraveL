@@ -12,8 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Indique à Laravel de faire confiance aux proxys de Render
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
-        'manager' => \App\Http\Middleware\EnsureUserIsManager::class,
+            'manager' => \App\Http\Middleware\EnsureUserIsManager::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -21,4 +24,3 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*'),
         );
     })->create();
-    
