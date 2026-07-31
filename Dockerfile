@@ -1,6 +1,6 @@
-FROM php:8.2-fpm-alpine
+FROM php:8.4-fpm-alpine
 
-# Dépendances système (correction du drapeau apk)
+# Dépendances système
 RUN apk add --no-cache nginx supervisor git unzip libpng-dev libzip-dev icu-dev postgresql-dev linux-headers
 
 # Extensions PHP indispensables pour Laravel + PostgreSQL (NeonDB)
