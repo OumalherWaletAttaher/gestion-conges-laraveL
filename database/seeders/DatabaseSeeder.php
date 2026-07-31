@@ -17,9 +17,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Types de congé
+        // Types de congé et migration des données existantes
         $this->call([
             TypeCongeSeeder::class,
+            MigrateExistingDataSeeder::class,
         ]);
 
         // Manager de démo
